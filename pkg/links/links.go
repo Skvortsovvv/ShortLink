@@ -1,12 +1,21 @@
 package links
 
-import "net/http"
+import (
+	"crypto/sha256"
+)
 
 type Link struct {
 	Data string
 }
 
+// метод заглушка пока
+func Shorter(longURL string) string {
+	hash := sha256.Sum256([]byte(longURL))
+	result := hash[0:10]
+	return string(result)
+}
+
 type LinksRepo interface {
-	Add(longUrl string, r *http.Request) (string, error)
-	Get(short string, r *http.Request) (string, error)
+	Add(longUrl string) (string, error)
+	Get(short string) (string, error)
 }

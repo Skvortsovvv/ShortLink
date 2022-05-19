@@ -2,7 +2,6 @@ package links
 
 import (
 	"fmt"
-	"net/http"
 	"sync"
 )
 
@@ -22,30 +21,36 @@ func NewLinksMemoryRepo() *LinksMemoryRepo {
 	}
 }
 
-func (repo *LinksMemoryRepo) Add(longURL string, r *http.Request) (string, error) {
-	// generated shortURL with method
+func (repo *LinksMemoryRepo) Add(longURL string) (string, error) {
+
 	var shortURL string
-	repo.mute.RLock()
-	_, ok := repo.data[shortURL]
-	repo.mute.Unlock()
-	if !ok {
-		repo.mute.Lock()
-		repo.data[shortURL] = longURL
+	proceed := longURL
+	for {
+		shortURL = Shorter(proceed)
+		repo.mute.RLock()
+		origin, ok := repo.data[shortURL]
 		repo.mute.Unlock()
+		if !ok {
+			repo.mute.Lock()
+			repo.data[shortURL] = longURL
+			repo.mute.Unlock()
+			break
+		} else if origin != longURL {
+			proceed = shortURL
+		} else {
+			break
+		}
 	}
 
 	return shortURL, nil
 }
 
-func (repo *LinksMemoryRepo) Get(shortULR string, r *http.Request) (string, error) {
+func (repo *LinksMemoryRepo) Get(shortULR string) (string, error) {
 	repo.mute.RLock()
-	_, ok := repo.data[shortULR]
+	longURL, ok := repo.data[shortULR]
 	repo.mute.Unlock()
 	if !ok {
 		return "", NoURLError
 	}
-	repo.mute.RLock()
-	longURL := repo.data[shortULR]
-	repo.mute.RUnlock()
 	return longURL, nil
 }

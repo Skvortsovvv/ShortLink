@@ -2,7 +2,6 @@ package links
 
 import (
 	"database/sql"
-	"net/http"
 )
 
 type LinksSQLRepo struct {
@@ -15,22 +14,33 @@ func NewLinksSQLRepo(db *sql.DB) *LinksSQLRepo {
 	}
 }
 
-func (repo *LinksSQLRepo) Add(longURL string, r *http.Request) (string, error) {
-	// make short link from long one
-	var shortURL string // obtained with algorithm
-	// maybe check for existence
-	_, err := repo.DB.ExecContext(
-		r.Context(),
-		"INSERT INTO links (`shortURL`, `longURL`) VALUES (&su, $lu)",
-		shortURL, longURL)
-	if err != nil {
-		return "", err
+func (repo *LinksSQLRepo) Add(longURL string) (string, error) {
+	var shortURL string
+	proceed := longURL
+	for {
+		shortURL = Shorter(proceed)
+		origin, err := repo.Get(shortURL)
+		if err != nil {
+			_, err := repo.DB.Exec(
+				"INSERT INTO links (short_URL, long_URL) VALUES ($su, $lu)",
+				shortURL, longURL)
+			if err != nil {
+				return "", err
+			}
+			break
+		} else if origin != longURL {
+			proceed = shortURL
+		} else {
+			break
+		}
 	}
 	return shortURL, nil
 }
 
-func (repo *LinksSQLRepo) Get(shortURL string, r *http.Request) (string, error) {
-	row := repo.DB.QueryRowContext(r.Context(), "SELECT longURL FROM links WHERE shortURL=$sl", shortURL)
+func (repo *LinksSQLRepo) Get(shortURL string) (string, error) {
+	row := repo.DB.QueryRow(
+		"SELECT long_URL FROM links WHERE short_URL=$su",
+		shortURL)
 	var longURL string
 	err := row.Scan(&longURL)
 	if err != nil {

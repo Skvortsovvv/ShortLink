@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"testingTask/pkg/error"
 	"testingTask/pkg/links"
 )
@@ -26,6 +27,17 @@ func (lh *LinksHandler) FromLongToShort(w http.ResponseWriter, r *http.Request) 
 	link := &links.Link{}
 
 	err = json.Unmarshal(body, link)
+
+	if err != nil {
+		ErrorMessage := error.Error{
+			ErrMsg: "invalid input"}
+
+		w.Header().Set("Content-type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(ErrorMessage.Error())
+	}
+
+	_, err = url.ParseRequestURI(link.Data)
 
 	if err != nil {
 		ErrorMessage := error.Error{
@@ -67,6 +79,17 @@ func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) 
 	link := &links.Link{}
 
 	err = json.Unmarshal(body, link)
+
+	if err != nil {
+		ErrorMessage := error.Error{
+			ErrMsg: "invalid input"}
+
+		w.Header().Set("Content-type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(ErrorMessage.Error())
+	}
+
+	_, err = url.ParseRequestURI(link.Data)
 
 	if err != nil {
 		ErrorMessage := error.Error{
