@@ -13,6 +13,7 @@ make migrate
 docker build .
 ````
 3. Запуск приложения:
+(В данном пунке происходит выбор репозитория для хранения данных: оперативная память или postgresql база данных)
 ````
 docker run --rm --network="host" -e WORKMODE=<memory или db> <app>
 ````
