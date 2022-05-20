@@ -14,6 +14,9 @@ var (
 	pattern = regexp.MustCompile(`([a-z]|[A-Z]|[0-9]){9}`)
 )
 
+// looking for substring that satisfies the pattern
+// after this done cals position for "_" by sum mod10 first and last bytes
+// in found substring
 func scanning(row []byte) (string, error) {
 	loc := pattern.FindIndex(row)
 
@@ -34,6 +37,7 @@ func scanning(row []byte) (string, error) {
 	return result, nil
 }
 
+// sum by mod2 original URL with hash slice
 func sumMod2(input, key []byte) (output []byte) {
 	for i := 0; i < 32; i++ {
 		output = append(output, input[i]^key[i%len(key)])
@@ -41,6 +45,7 @@ func sumMod2(input, key []byte) (output []byte) {
 	return output
 }
 
+// translate sha256 slice to available symbols from base78
 func base(data []byte) []byte {
 	var result []byte
 	for _, runeValue := range data {

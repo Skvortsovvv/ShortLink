@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"testingTask/pkg/error"
@@ -18,7 +19,7 @@ func (lh *LinksHandler) FromLongToShort(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		ErrorMessage := error.Error{
 			ErrMsg: "data have not arrived"}
-
+		log.Printf("read body error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(ErrorMessage.Error())
@@ -31,7 +32,7 @@ func (lh *LinksHandler) FromLongToShort(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		ErrorMessage := error.Error{
 			ErrMsg: "invalid input"}
-
+		log.Printf("json unmarshal error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(ErrorMessage.Error())
@@ -42,7 +43,7 @@ func (lh *LinksHandler) FromLongToShort(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		ErrorMessage := error.Error{
 			ErrMsg: "invalid input"}
-
+		log.Printf("parse uri error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(ErrorMessage.Error())
@@ -53,15 +54,15 @@ func (lh *LinksHandler) FromLongToShort(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		ErrorMessage := error.Error{
 			ErrMsg: err.Error()}
-
+		log.Printf("add new link error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(ErrorMessage.Error())
 	}
 
 	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(shortURL))
+	w.WriteHeader(http.StatusOK)
 }
 
 func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +72,7 @@ func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) 
 		ErrorMessage := error.Error{
 			ErrMsg: "data have not arrived"}
 
+		log.Printf("read body error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(ErrorMessage.Error())
@@ -84,6 +86,7 @@ func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) 
 		ErrorMessage := error.Error{
 			ErrMsg: "invalid input"}
 
+		log.Printf("json unmarshal error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(ErrorMessage.Error())
@@ -95,6 +98,7 @@ func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) 
 		ErrorMessage := error.Error{
 			ErrMsg: err.Error()}
 
+		log.Printf("get link error: %s", err.Error())
 		w.Header().Set("Content-type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(ErrorMessage.Error())

@@ -11,6 +11,15 @@ import (
 	"time"
 )
 
+const (
+	HOST     = "db.host"
+	PORT     = "db.port"
+	USER     = "db.user"
+	PASSWORD = "DB_PASSWORD"
+	DBNAME   = "db.dbname"
+	SSLMODE  = "db.sslmode"
+)
+
 func InitMemoryRepo() links.LinksRepo {
 	return links.NewLinksMemoryRepo()
 }
@@ -26,12 +35,12 @@ func InitSQLRepo() links.LinksRepo {
 	}
 
 	psqlInfo := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=%s`,
-		viper.GetString("db.host"),
-		viper.GetString("db.port"),
-		viper.GetString("db.user"),
-		os.Getenv("DB_PASSWORD"),
-		viper.GetString("db.dbname"),
-		viper.GetString("db.sslmode"))
+		viper.GetString(HOST),
+		viper.GetString(PORT),
+		viper.GetString(USER),
+		os.Getenv(PASSWORD),
+		viper.GetString(DBNAME),
+		viper.GetString(SSLMODE))
 
 	db, err := sql.Open("postgres", psqlInfo)
 
@@ -39,8 +48,8 @@ func InitSQLRepo() links.LinksRepo {
 		log.Fatalf("error opening db: %s", err.Error())
 	}
 
-	db.SetMaxOpenConns(100)
-	db.SetConnMaxLifetime(10 * time.Minute)
+	db.SetMaxOpenConns(1000)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	err = db.Ping()
 	if err != nil {

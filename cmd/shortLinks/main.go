@@ -10,16 +10,23 @@ import (
 	"testingTask/pkg/links"
 )
 
+const (
+	MEMORY = "memory"
+	DB     = "db"
+)
+
 func main() {
 	mode := flag.String("mode", "memory", "")
 	flag.Parse()
 
 	var linksRepo links.LinksRepo
 
-	if *mode == "memory" {
+	if *mode == MEMORY {
 		linksRepo = bootstrap.InitMemoryRepo()
-	} else if *mode == "db" {
+		log.Println("starting on memory")
+	} else if *mode == DB {
 		linksRepo = bootstrap.InitSQLRepo()
+		log.Println("staring on postgresql db")
 	} else {
 		log.Fatalf("wrong mode error")
 	}

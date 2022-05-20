@@ -1,14 +1,22 @@
 version: '3.8'
 
 services:
-  postgres:
-    restart: always
-    image: postgres:13.3
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=qwerty
+  shortLinks:
+    build: ./
+    command: ./wait-for-postgres.sh db ./shortLinks
     ports:
-      - 5432:5432
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=qwerty
+
+  db:
+    restart: always
+    image: postgres:latest
     volumes:
       - ./_sql/:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRESS_PASSWORD=qwerty
+    ports:
+      - 5432:5432

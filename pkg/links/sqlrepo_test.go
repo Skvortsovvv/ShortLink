@@ -139,7 +139,7 @@ func TestSQLError(t *testing.T) {
 
 	mock.ExpectQuery("SELECT long_URL FROM links WHERE").
 		WithArgs(TestCaseGet.shortULR).
-		WillReturnError(fmt.Errorf("db_error"))
+		WillReturnError(fmt.Errorf("sql: no rows in result set"))
 
 	_, err = LinksSQLRepo.Get(TestCaseGet.shortULR)
 
