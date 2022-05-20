@@ -2,6 +2,8 @@ package links
 
 import (
 	"database/sql"
+	"fmt"
+	"testingTask/internal/shorter"
 )
 
 type LinksSQLRepo struct {
@@ -18,7 +20,7 @@ func (repo *LinksSQLRepo) Add(longURL string) (string, error) {
 	var shortURL string
 	proceed := longURL
 	for {
-		shortURL = Shorter(proceed)
+		shortURL = shorter.Shorter(proceed)
 		origin, err := repo.Get(shortURL)
 		if err != nil {
 			_, err := repo.DB.Exec(
@@ -44,7 +46,7 @@ func (repo *LinksSQLRepo) Get(shortURL string) (string, error) {
 	var longURL string
 	err := row.Scan(&longURL)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("db_error")
 	}
 	return longURL, nil
 }

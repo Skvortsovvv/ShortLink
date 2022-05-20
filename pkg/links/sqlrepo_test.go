@@ -1,8 +1,10 @@
 package links
 
 import (
+	"fmt"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
+	"testingTask/internal/shorter"
 )
 
 func TestSQLAdd(t *testing.T) {
@@ -17,21 +19,21 @@ func TestSQLAdd(t *testing.T) {
 	TestCases := []TestCase{
 		{
 			longURL:  "https://www.ozon.ru/",
-			shortULR: Shorter("https://www.ozon.ru/"),
+			shortULR: shorter.Shorter("https://www.ozon.ru/"),
 		},
 		{
 			longURL:  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-			shortULR: Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
 			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
 _%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
+			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
 D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
 		},
 		{
 			longURL:  "https://ya.ru/",
-			shortULR: Shorter("https://ya.ru/"),
+			shortULR: shorter.Shorter("https://ya.ru/"),
 		},
 	}
 
@@ -51,6 +53,10 @@ D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%
 			t.Errorf("unexpected err: %s", err.Error())
 		}
 
+		if err = mock.ExpectationsWereMet(); err != nil {
+			t.Errorf("there were unfulfilled expectations: %s", err)
+		}
+
 		if result != testCase.shortULR {
 			t.Errorf("error at [%d] test case:\n\tExpected: %s\n\tGot: %s",
 				index,
@@ -58,9 +64,6 @@ D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%
 				result)
 		}
 
-		if err = mock.ExpectationsWereMet(); err != nil {
-			t.Errorf("there were unfulfilled expectations: %s", err)
-		}
 	}
 
 }
@@ -75,21 +78,21 @@ func TestSQLGet(t *testing.T) {
 	TestCases := []TestCase{
 		{
 			longURL:  "https://www.ozon.ru/",
-			shortULR: Shorter("https://www.ozon.ru/"),
+			shortULR: shorter.Shorter("https://www.ozon.ru/"),
 		},
 		{
 			longURL:  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-			shortULR: Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
 			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
 _%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
+			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
 D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
 		},
 		{
 			longURL:  "https://ya.ru/",
-			shortULR: Shorter("https://ya.ru/"),
+			shortULR: shorter.Shorter("https://ya.ru/"),
 		},
 	}
 
@@ -124,5 +127,33 @@ D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%
 }
 
 func TestSQLError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Errorf("cant cerate mock: %s", err.Error())
+	}
+	defer db.Close()
+
+	LinksSQLRepo := NewLinksSQLRepo(db)
+
+	// Get method error
+	TestCaseGet := TestCase{
+		shortULR: shorter.Shorter("https://ozon.ru"),
+		longURL:  "",
+	}
+
+	mock.ExpectQuery("SELECT long_URL FROM links WHERE").
+		WithArgs(TestCaseGet.shortULR).
+		WillReturnError(fmt.Errorf("db_error"))
+
+	_, err = LinksSQLRepo.Get(TestCaseGet.shortULR)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
 
 }

@@ -3,6 +3,7 @@ package links
 import (
 	"fmt"
 	"sync"
+	"testingTask/internal/shorter"
 )
 
 var (
@@ -24,19 +25,19 @@ func NewLinksMemoryRepo() *LinksMemoryRepo {
 func (repo *LinksMemoryRepo) Add(longURL string) (string, error) {
 
 	var shortURL string
-	proceed := longURL
+	proceedURL := longURL
 	for {
-		shortURL = Shorter(proceed)
+		shortURL = shorter.Shorter(proceedURL)
 		repo.mute.RLock()
 		origin, ok := repo.data[shortURL]
-		repo.mute.Unlock()
+		repo.mute.RUnlock()
 		if !ok {
 			repo.mute.Lock()
 			repo.data[shortURL] = longURL
 			repo.mute.Unlock()
 			break
 		} else if origin != longURL {
-			proceed = shortURL
+			proceedURL = shortURL
 		} else {
 			break
 		}
@@ -48,7 +49,7 @@ func (repo *LinksMemoryRepo) Add(longURL string) (string, error) {
 func (repo *LinksMemoryRepo) Get(shortULR string) (string, error) {
 	repo.mute.RLock()
 	longURL, ok := repo.data[shortULR]
-	repo.mute.Unlock()
+	repo.mute.RUnlock()
 	if !ok {
 		return "", NoURLError
 	}

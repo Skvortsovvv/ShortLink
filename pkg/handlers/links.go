@@ -89,17 +89,6 @@ func (lh *LinksHandler) FromShortToLong(w http.ResponseWriter, r *http.Request) 
 		w.Write(ErrorMessage.Error())
 	}
 
-	_, err = url.ParseRequestURI(link.Data)
-
-	if err != nil {
-		ErrorMessage := error.Error{
-			ErrMsg: "invalid input"}
-
-		w.Header().Set("Content-type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(ErrorMessage.Error())
-	}
-
 	longURL, err := lh.LinksRepo.Get(link.Data)
 
 	if err != nil {

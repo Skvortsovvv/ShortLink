@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -22,7 +21,7 @@ func main() {
 	} else if *mode == "db" {
 		linksRepo = bootstrap.InitSQLRepo()
 	} else {
-		log.Fatalf("frong mode error")
+		log.Fatalf("wrong mode error")
 	}
 
 	mux := http.NewServeMux()
@@ -31,10 +30,10 @@ func main() {
 		LinksRepo: linksRepo,
 	}
 
-	mux.HandleFunc("/getShort", linksHandler.FromLongToShort) // POST method
-	mux.HandleFunc("/getLong", linksHandler.FromShortToLong)  // GET method
+	mux.HandleFunc("/create", linksHandler.FromLongToShort) // POST method
+	mux.HandleFunc("/get", linksHandler.FromShortToLong)    // GET method
 
-	fmt.Println("starting at 8080")
+	log.Println("starting at 8080")
 	http.ListenAndServe(":8080", mux)
 
 }
