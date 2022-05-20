@@ -1,30 +1,27 @@
 package main
 
 import (
-	"flag"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
+	"os"
 	"testingTask/internal/bootstrap"
 	"testingTask/pkg/handlers"
 	"testingTask/pkg/links"
 )
 
-const (
-	MEMORY = "memory"
-	DB     = "db"
-)
-
 func main() {
-	mode := flag.String("mode", "memory", "")
-	flag.Parse()
+	//mode := flag.String("mode", "memory", "")
+	//flag.Parse()
+
+	mode := os.Getenv("WORKMODE")
 
 	var linksRepo links.LinksRepo
 
-	if *mode == MEMORY {
+	if mode == "memory" {
 		linksRepo = bootstrap.InitMemoryRepo()
 		log.Println("starting on memory")
-	} else if *mode == DB {
+	} else if mode == "db" {
 		linksRepo = bootstrap.InitSQLRepo()
 		log.Println("staring on postgresql db")
 	} else {

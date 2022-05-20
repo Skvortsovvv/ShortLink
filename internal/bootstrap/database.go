@@ -29,16 +29,16 @@ func InitSQLRepo() links.LinksRepo {
 		log.Fatalf("error initializating configs: %s", err.Error())
 	}
 
-	err := godotenv.Load("../../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("error loading env variables: %s", err.Error())
 	}
 
-	psqlInfo := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=%s`,
-		viper.GetString(HOST),
-		viper.GetString(PORT),
+	psqlInfo := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=%v",
 		viper.GetString(USER),
 		os.Getenv(PASSWORD),
+		viper.GetString(HOST),
+		viper.GetString(PORT),
 		viper.GetString(DBNAME),
 		viper.GetString(SSLMODE))
 
@@ -61,6 +61,6 @@ func InitSQLRepo() links.LinksRepo {
 func initConfig() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../../configs")
+	viper.AddConfigPath("configs")
 	return viper.ReadInConfig()
 }
