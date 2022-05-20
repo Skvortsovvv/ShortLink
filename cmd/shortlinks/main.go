@@ -11,8 +11,6 @@ import (
 )
 
 func main() {
-	//mode := flag.String("mode", "memory", "")
-	//flag.Parse()
 
 	mode := os.Getenv("WORKMODE")
 
