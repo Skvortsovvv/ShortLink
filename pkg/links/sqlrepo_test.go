@@ -12,6 +12,7 @@ func TestSQLAdd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("cant create mock: %s", err.Error())
 	}
+
 	defer db.Close()
 
 	repo := NewLinksSQLRepo(db)
@@ -26,10 +27,10 @@ func TestSQLAdd(t *testing.T) {
 			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
-			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
-_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
-D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
+			longURL: "https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5," +
+				"_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F",
+			shortULR: shorter.Shorter("https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%" +
+				"D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F"),
 		},
 		{
 			longURL:  "https://ya.ru/",
@@ -39,13 +40,9 @@ D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%
 
 	for index, testCase := range TestCases {
 		mock.
-			ExpectQuery("INSERT INTO links").
+			ExpectExec("INSERT INTO links").
 			WithArgs(testCase.shortULR, testCase.longURL).
-			WillReturnRows(func() *sqlmock.Rows {
-				result := sqlmock.NewRows([]string{"short_URL"})
-				result.AddRow(testCase.shortULR)
-				return result
-			}())
+			WillReturnResult(sqlmock.NewResult(int64(index+1), int64(index+1)))
 
 		result, err := repo.Add(testCase.longURL)
 
@@ -63,7 +60,6 @@ D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%
 				testCase.shortULR,
 				result)
 		}
-
 	}
 
 }
@@ -85,10 +81,10 @@ func TestSQLGet(t *testing.T) {
 			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
-			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
-_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
-D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
+			longURL: "https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5," +
+				"_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F",
+			shortULR: shorter.Shorter("https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%" +
+				"87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F"),
 		},
 		{
 			longURL:  "https://ya.ru/",

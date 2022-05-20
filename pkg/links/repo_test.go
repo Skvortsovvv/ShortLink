@@ -26,10 +26,10 @@ func TestAdd(t *testing.T) {
 			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
-			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
-_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
-D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
+			longURL: "https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5," +
+				"_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F",
+			shortULR: shorter.Shorter("https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5," +
+				"_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F"),
 		},
 		{
 			longURL:  "https://ya.ru/",
@@ -63,10 +63,10 @@ func TestGet(t *testing.T) {
 			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 		{
-			longURL: `https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5,
-_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`,
-			shortULR: shorter.Shorter(`https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%
-D1%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F`),
+			longURL: "https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5," +
+				"_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F",
+			shortULR: shorter.Shorter("https://ru.wikipedia.org/wiki/Go#%D0%9D%D0%B0%D0%B7%D0%BD%D0%B0%D1" +
+				"%87%D0%B5%D0%BD%D0%B8%D0%B5,_%D0%B8%D0%B4%D0%B5%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F"),
 		},
 		{
 			longURL:  "https://ya.ru/",
@@ -95,25 +95,25 @@ func TestError(t *testing.T) {
 
 	TestCases := []TestCase{
 		{
-			longURL:  "https://www.ozon.ru/",
-			shortULR: "",
+			longURL:  "",
+			shortULR: shorter.Shorter("https://www.ozon.ru/"),
 		},
 		{
-			longURL:  "https://www.ozon.ru/",
-			shortULR: "",
+			longURL:  "",
+			shortULR: shorter.Shorter("https://www.ozon.ru/"),
 		},
 		{
-			longURL:  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-			shortULR: "",
+			longURL:  "",
+			shortULR: shorter.Shorter("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
 		},
 	}
 
 	LinksMemoryRepo := NewLinksMemoryRepo()
 
 	for index, testCase := range TestCases {
-		result, _ := LinksMemoryRepo.Add(testCase.longURL)
-		if !reflect.DeepEqual(testCase.shortULR, result) {
-			t.Errorf("error at [%d] test case:\n\tExpected: %v\n\tGot: %v", index, testCase.shortULR, result)
+		result, _ := LinksMemoryRepo.Get(testCase.shortULR)
+		if !reflect.DeepEqual(testCase.longURL, result) {
+			t.Errorf("error at [%d] test case:\n\tExpected: %v\n\tGot: %v", index, testCase.longURL, result)
 		}
 	}
 }

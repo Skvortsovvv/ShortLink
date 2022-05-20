@@ -25,7 +25,8 @@ func (repo *LinksSQLRepo) Add(longURL string) (string, error) {
 		if err != nil {
 			_, err := repo.DB.Exec(
 				"INSERT INTO links (short_URL, long_URL) VALUES ($su, $lu)",
-				shortURL, longURL)
+				shortURL,
+				longURL)
 			if err != nil {
 				return "", err
 			}
